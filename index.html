@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocket-client</title>
+</head>
+<style>
+    body {
+        background-color: #002631;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+
+</style>
+<body>
+    <label for="request">request</label>
+    <textarea id="request" class="request"></textarea>
+    <button id="sendBtn"> send </button>
+    <button id="closeBtn"> close </button>
+</body>
+<script>
+    window.onload = () => {
+        document.getElementById("sendBtn").addEventListener("click", send);
+        document.getElementById("closeBtn").addEventListener("click", close);
+    }
+    let socket = new WebSocket("ws://localhost:13706/djitsWs");
+    // let socket = new WebSocket("ws://211.189.132.184:13706/djitsWs");
+
+    socket.onopen = function(e) {
+        console.log("[open] 커넥션이 만들어졌습니다.");
+    };
+
+    socket.onmessage = function(event) {
+        console.log(JSON.parse(event.data))
+    };
+
+    socket.onclose = function(event) {
+        if (event.wasClean) {
+            console.log(`[close] 커넥션이 정상적으로 종료되었습니다(code=${event.code} reason=${event.reason})`);
+        } else {
+            // 예시: 프로세스가 죽거나 네트워크에 장애가 있는 경우
+            // event.code가 1006이 됩니다.
+            console.log('[close] 커넥션이 죽었습니다.');
+        }
+    };
+
+    socket.onerror = function(error) {
+        console.log(`[error]`, error);
+    };
+
+    const send = (e) => {
+        const value = document.getElementById("request").value;
+        console.log(value)
+        socket.send(value);
+    }
+
+    const close = () => {
+        socket.close();
+    }
+</script>
+</html>
