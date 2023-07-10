@@ -17,8 +17,138 @@
     <textarea id="request" class="request"></textarea>
     <button id="sendBtn"> send </button>
     <button id="closeBtn"> close </button>
+
+    <div id="test"></div>
 </body>
+<script src="CreateDom.js "></script>
 <script>
+    const test =
+        {
+        "serviceName":"facilityStatusService",
+        "methodName":"downloadFacilityStatusExcel",
+        "param":{
+            "custom": {
+                "excel" : {
+                    "fileName":"test",
+                    "sheets": [{
+                        "name" : "rse",
+                        "methodName" : "getDsrcStatusData",
+                        "columns":[
+                            {
+                                "field":"no",
+                                "fieldKorNm":"NO"
+                            },
+                            {
+                                "field":"colctDt",
+                                "fieldKorNm":"일시"
+                            },
+                            {
+                                "field":"id",
+                                "fieldKorNm":"BIT_ID"
+                            },
+                            {
+                                "field":"equipNm",
+                                "fieldKorNm":"기기명"
+                            },
+                            {
+                                "field":"modelNm",
+                                "fieldKorNm":"구"
+                            },
+                            {
+                                "field":"instLocatn",
+                                "fieldKorNm":"설치위치"
+                            },
+                            {
+                                "field":"vpnKind",
+                                "fieldKorNm":"vpn종류"
+                            },
+                            {
+                                "field":"lte",
+                                "fieldKorNm":"lte"
+                            },
+                            {
+                                "field":"mnfctComp",
+                                "fieldKorNm":"제조사"
+                            },
+                            {
+                                "field":"instDt",
+                                "fieldKorNm":"준공일자"
+                            },
+                            {
+                                "field":"gateway",
+                                "fieldKorNm":"Gateway"
+                            },
+                            {
+                                "field":"subnetMask",
+                                "fieldKorNm":"SubnetMask"
+                            },
+                            {
+                                "field":"defectExtYn",
+                                "fieldKorNm":"하자여부"
+                            }
+                        ],
+                    }, {
+                        "name" : "VDS",
+                        "methodName" : "getVdsStatusData",
+                        "columns":[
+                            {
+                                "field":"no",
+                                "fieldKorNm":"NO"
+                            },
+                            {
+                                "field":"colctDt",
+                                "fieldKorNm":"일시"
+                            },
+                            {
+                                "field":"id",
+                                "fieldKorNm":"BIT_ID"
+                            },
+                            {
+                                "field":"equipNm",
+                                "fieldKorNm":"기기명"
+                            },
+                            {
+                                "field":"modelNm",
+                                "fieldKorNm":"구"
+                            },
+                            {
+                                "field":"instLocatn",
+                                "fieldKorNm":"설치위치"
+                            },
+                            {
+                                "field":"vpnKind",
+                                "fieldKorNm":"vpn종류"
+                            },
+                            {
+                                "field":"lte",
+                                "fieldKorNm":"lte"
+                            },
+                            {
+                                "field":"mnfctComp",
+                                "fieldKorNm":"제조사"
+                            },
+                            {
+                                "field":"instDt",
+                                "fieldKorNm":"준공일자"
+                            },
+                            {
+                                "field":"gateway",
+                                "fieldKorNm":"Gateway"
+                            },
+                            {
+                                "field":"subnetMask",
+                                "fieldKorNm":"SubnetMask"
+                            },
+                            {
+                                "field":"defectExtYn",
+                                "fieldKorNm":"하자여부"
+                            }
+                        ],
+                    }]
+                }
+            }
+        }
+    }
     window.onload = () => {
         document.getElementById("sendBtn").addEventListener("click", send);
         document.getElementById("closeBtn").addEventListener("click", close);
@@ -31,7 +161,60 @@
     };
 
     socket.onmessage = function(event) {
-        console.log(JSON.parse(event.data))
+        if(typeof event.data === "string") { //json데이터를 받은 경우
+            const data = JSON.parse(event.data)
+            console.log(data)
+        } else { // 파일 데이터를 받은 경우
+            const excelData = event.data;
+            const excelFile = new File([excelData], 'example.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(excelFile);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = excelFile.name;
+
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // const item = data.items;
+        // if(data.methodName == "scheduleVmsDspl") {
+        //     console.log("scheduleVmsDspl")
+        //     let mapVms = createDom("div", {
+        //         "class": "map_vms",
+        //         "style": "top:300px;left:800px"
+        //     })
+        //     const vmsCont = createDom("div", {
+        //         "class": "vms_cont"
+        //     });
+        //     const img = createDom("img", {
+        //         "src":  'data:image/png;base64,' + item[0]["dsplImgStr"]
+        //     });
+        //     const vmsInfo = createDom("h5", {
+        //         "class": "vms_info"
+        //     });
+        //     const vmsLocation = createDom("strong", {
+        //         "class": "vms_location"
+        //     }, item[0].vmsId);
+        //     const vmsId = createDom("span", {
+        //         "class": "vms_id"
+        //     }, item[0].vmsId);
+        //     const camera = createDom("div", {
+        //         "class": "camera"
+        //     });
+        //
+        //
+        //     //vmsCont
+        //     vmsCont.append(img);
+        //     //vmsInfo
+        //     vmsInfo.append(vmsLocation, vmsId);
+        //     //mapVms
+        //     mapVms.append(vmsCont, vmsInfo);
+        //     // mapVms.append(camera) //css에 이미지가 없음
+        //
+        //     console.log("mapVms", mapVms)
+        //
+        //     document.getElementById("test").append(mapVms);
+        // }
     };
 
     socket.onclose = function(event) {
